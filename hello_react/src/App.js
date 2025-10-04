@@ -2,49 +2,54 @@ import logo from "./logo.svg";
 import "./App.css";
 import { Component } from "react";
 
+import CardList from "./components/card_list/card_list.component";
+import SearchBox from "./components/search_box/search_box.component";
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       dinos: [],
-      search_field : ''
+      searchField: "",
     };
   }
 
   componentDidMount() {
-    fetch("https://dinosaur-facts-api.shultzlab.com/dinosaurs").then(
-      (response) => response.json()
-    )
-    .then((dinos_fetch)=> this.setState(
-      ()=> {
-      return {dinos:dinos_fetch};
-    },
-    () => {
-      console.log(this.state);
-    }
-  ));
+    fetch("https://dinosaur-facts-api.shultzlab.com/dinosaurs")
+      .then((response) => response.json())
+      .then((dinosFetch) =>
+        this.setState(
+          () => {
+            return { dinos: dinosFetch };
+          },
+          () => {
+            console.log(this.state);
+          }
+        )
+      );
+  }
+  onSearchChange = (event) => {
+    const searchField = event.target.value.toLocaleLowerCase();
+            this.setState(() => {
+              return { searchField };
+            });
   }
 
   render() {
-     const filtered_dinos = this.state.dinos.filter((dino)=>{
-            return dino.Name.toLocaleLowerCase().includes(this.state.search_field);
-          });
+
+    const {dinos, searchField} = this.state;
+    const {onSearchChange} = this;
+
+    const filtered_dinos = dinos.filter((dino) => {
+      return dino.Name.toLocaleLowerCase().includes(searchField);
+    });
     return (
       <div className="App">
-        <input className='searchbox' type='search' placeholder="search dinos" onChange={(event)=>{
-          console.log(event)
-          const search_field = event.target.value.toLocaleLowerCase();
-          this.setState(()=>{
-            return {search_field}
-          })
-        }}/>
-        {filtered_dinos.map((dino) => {
-          return (
-            <div>
-              <h1 key={dino.Name}>{dino.Name}</h1>
-            </div>
-          );
-        })}
+        <h1 className="app-title">Dinos Rolodex</h1>
+        <SearchBox onChangeHandler = {onSearchChange} 
+        placeholder = 'search dinos'
+        className = 'dinos-search-box'/>
+        <CardList dinos = {filtered_dinos}/>
       </div>
     );
   }
